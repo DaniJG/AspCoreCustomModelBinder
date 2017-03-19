@@ -1,0 +1,78 @@
+@model ASPCoreCustomModelBinder.Models.Appointment
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h2>Create posting JSON</h2>
+
+<form id="appointmentForm" asp-action="Create">
+    <div class="form-horizontal">
+        <h4>Appointment</h4>
+        <hr />
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <div class="form-group">
+            <label asp-for="Name" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="Name" class="form-control" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="AppointmentDate" class="col-md-2 control-label"></label>
+            <div class="col-md-5">
+                <input asp-for="AppointmentDate" name="AppointmentDate.Date" class="form-control" value="@Model?.AppointmentDate.ToString("d")" />
+                <span asp-validation-for="AppointmentDate" class="text-danger"></span>
+            </div>
+            <div class="col-md-5">
+                <input asp-for="AppointmentDate" name="AppointmentDate.Time" class="form-control"  value="@Model?.AppointmentDate.ToString("t")" />
+                <span asp-validation-for="AppointmentDate" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input id="submitJson" type="submit" value="Create" class="btn btn-default" />
+            </div>
+        </div>
+    </div>
+</form>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script>
+        var postAppointment = function (e) {
+            if (!$("#appointmentForm").valid()) return;
+
+            e.preventDefault();
+
+            var data = {
+                name: $('input[name=Name]').val(),
+                appointmentDate: {
+                    date: $('input[name="AppointmentDate.Date"]').val(),
+                    time: $('input[name="AppointmentDate.Time"]').val()
+                }
+                //appointmentDate: '2012-03-19T07:22Z'
+            };
+
+            $.ajax({
+                type: 'POST',
+                url: '/appointments/createjson',
+                data: JSON.stringify(data),
+                contentType: 'application/json',
+                success: function (data, status, xhr) {
+                    if (xhr.status == 200) // go to appointments index
+                        window.location = '/appointments';
+                }
+            });
+        };
+
+        $(function () {
+            $("#submitJson").click(postAppointment);
+        });
+    </script>
+}

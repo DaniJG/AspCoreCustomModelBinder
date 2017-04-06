@@ -19,6 +19,7 @@ namespace ASPCoreCustomModelBinder.ModelBinding
         public Task BindModelAsync(ModelBindingContext bindingContext)
         {
             // Make sure both Date and Time values are found in the Value Providers
+            // NOTE: You might not want to enforce both parts
             var datePartName = $"{bindingContext.ModelName}.Date";
             var timePartName = $"{bindingContext.ModelName}.Time";
             var datePartValues = bindingContext.ValueProvider.GetValue(datePartName);
@@ -42,7 +43,7 @@ namespace ASPCoreCustomModelBinder.ModelBinding
                 timePartValues.FirstValue,
                 "t",
                 CultureInfo.InvariantCulture,
-                DateTimeStyles.AssumeUniversal,
+                DateTimeStyles.AdjustToUniversal,
                 out var parsedTimeValue);
             
             // Combine into single DateTime which is the end result
@@ -52,7 +53,7 @@ namespace ASPCoreCustomModelBinder.ModelBinding
                             parsedTimeValue.Hour,
                             parsedTimeValue.Minute,
                             parsedTimeValue.Second);            
-            //bindingContext.ModelState.SetModelValue(bindingContext.ModelName, result, $"{datePartValues.FirstValue} {timePartValues.FirstValue}");
+            bindingContext.ModelState.SetModelValue(bindingContext.ModelName, result, $"{datePartValues.FirstValue} {timePartValues.FirstValue}");
             bindingContext.Result = ModelBindingResult.Success(result);        
             return Task.CompletedTask;
         }
